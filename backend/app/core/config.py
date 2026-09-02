@@ -1,6 +1,7 @@
 """Centralised settings, loaded from environment / .env. No secrets live in code."""
 from functools import lru_cache
 
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -12,16 +13,27 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql://aapm:aapm@localhost:5432/aapm"
 
-    secret_key: str = "insecure-dev-key-change-me"
+    # Accepts SECRET_KEY or JWT_SECRET_KEY (deployment convention)
+    secret_key: str = Field(
+        default="insecure-dev-key-change-me",
+        validation_alias=AliasChoices("SECRET_KEY", "JWT_SECRET_KEY"),
+    )
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24
 
-    cors_origins: str = "http://localhost:3000,http://localhost:5173"
+    cors_origins: str = "http://localhost:3000,http://localhost:5173,http://localhost:8080"
+
+    # Seed demo accounts + sample project on startup (never enable in production)
+    demo_mode: bool = False
 
     llm_provider: str = "auto"  # auto | openai | huggingface | offline
     openai_api_key: str = ""
     openai_model: str = "gpt-4o-mini"
-    huggingface_api_key: str = ""
+    # Accepts HUGGINGFACE_API_KEY or HF_API_KEY (deployment convention)
+    huggingface_api_key: str = Field(
+        default="",
+        validation_alias=AliasChoices("HUGGINGFACE_API_KEY", "HF_API_KEY"),
+    )
     hf_model: str = "mistralai/Mistral-7B-Instruct-v0.3"
     llm_temperature: float = 0.4
     llm_max_tokens: int = 2200

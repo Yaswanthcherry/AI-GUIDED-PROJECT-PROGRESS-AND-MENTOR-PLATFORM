@@ -13,6 +13,7 @@ langchain-core>=0.3
 langchain-openai>=0.2
 langchain-community>=0.3
 requests>=2.32
-# testing
+# migrations + testing
+alembic>=1.13
 pytest>=8.0
 httpx>=0.27

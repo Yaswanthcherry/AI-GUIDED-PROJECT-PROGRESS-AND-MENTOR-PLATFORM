@@ -1,0 +1,12 @@
+# Root build context (frontend image) — keep the image small and secret-free
+node_modules
+dist
+backend
+.git
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+.vscode
+.idea
