@@ -13,7 +13,7 @@ VALID_PHASES = {"Planning & Design", "Core Development", "Integration & Testing"
 
 def run(inp: dict[str, Any], llm: LLM) -> dict[str, Any]:
     """
-    NOTEBOOK INTEGRATION POINT: swap in the notebook's planning logic here.
+    Generates a week-by-week timeline plan with phases and milestones.
     Returns {"timeline": [ {"week","phase","milestone","tasks":[...]} ... ]}.
     """
     base = kb.offline_timeline(inp)

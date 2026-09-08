@@ -125,8 +125,8 @@ def _offline(ctx: dict[str, Any], question: str) -> dict[str, str]:
 
 def reply(ctx: dict[str, Any], question: str, llm: LLM | None = None) -> dict[str, str]:
     """
-    NOTEBOOK INTEGRATION POINT: replace the LLM call with the notebook's chat
-    prompt/chain if it has one; the offline composer below guarantees an answer.
+    Provides conversational mentor guidance grounded in project context.
+    Returns structured responses based on student questions.
     """
     llm = llm or get_llm()
     try:

@@ -13,7 +13,7 @@ SEVERITIES = {"Low", "Medium", "High"}
 
 def run(inp: dict[str, Any], timeline: dict[str, Any], llm: LLM) -> dict[str, Any]:
     """
-    NOTEBOOK INTEGRATION POINT: swap in the notebook's risk-analysis logic here.
+    Analyzes project risks with severity and probability assessments.
     Returns {"risks": [ {"risk","category","severity","probability","mitigation"} ... ]}.
     """
     base = kb.offline_risks(inp)

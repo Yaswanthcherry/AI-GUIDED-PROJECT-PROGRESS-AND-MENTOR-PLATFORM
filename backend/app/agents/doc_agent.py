@@ -162,8 +162,8 @@ def _offline(ctx: dict[str, Any], doc_type: str) -> str:
 
 def generate(ctx: dict[str, Any], doc_type: str, llm: LLM | None = None) -> dict[str, Any]:
     """
-    NOTEBOOK INTEGRATION POINT: swap in the notebook's document-generation
-    prompt/chain here if it has one; the offline composer guarantees output.
+    Generates a project document based on the blueprint context.
+    Supports 11 standard academic document types for project deliverables.
     Returns {"title", "content", "diagram"?}.
     """
     llm = llm or get_llm()

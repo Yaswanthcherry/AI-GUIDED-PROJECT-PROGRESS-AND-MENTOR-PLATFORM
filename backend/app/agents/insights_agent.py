@@ -10,7 +10,8 @@ from app.agents.prompts import INSIGHTS_SYSTEM
 
 def compose(ctx: dict[str, Any], llm: LLM | None = None) -> list[str]:
     """
-    NOTEBOOK INTEGRATION POINT: swap in the notebook's insight logic if present.
+    Composes AI-generated faculty insights based on project state.
+    Returns actionable observations for project monitoring.
     """
     llm = llm or get_llm()
     try:

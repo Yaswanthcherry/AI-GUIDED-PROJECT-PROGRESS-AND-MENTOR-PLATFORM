@@ -38,8 +38,8 @@ def _offline(ctx: dict[str, Any]) -> list[str]:
 
 def recommend(ctx: dict[str, Any], llm: LLM | None = None) -> list[str]:
     """
-    NOTEBOOK INTEGRATION POINT: swap in the notebook's progress-coaching logic
-    here if present; the offline composer guarantees output.
+    Generates progress recommendations based on current project status.
+    Provides coaching advice for staying on track with timeline.
     """
     llm = llm or get_llm()
     try:

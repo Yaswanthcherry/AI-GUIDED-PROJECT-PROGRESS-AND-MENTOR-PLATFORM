@@ -13,7 +13,8 @@ _REQUIRED = {"objectives", "deliverables", "features", "functional", "nonFunctio
 
 def run(inp: dict[str, Any], evaluation: dict[str, Any], llm: LLM) -> dict[str, Any]:
     """
-    NOTEBOOK INTEGRATION POINT: swap in the notebook's scope prompt/logic here.
+    Defines project scope including objectives, deliverables, and requirements.
+    Returns structured scope data with functional and non-functional specs.
     """
     base = kb.offline_scope(inp)
     try:

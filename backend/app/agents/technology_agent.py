@@ -13,7 +13,7 @@ _REQUIRED = {"technology", "architecture"}
 
 def run(inp: dict[str, Any], scope: dict[str, Any], llm: LLM) -> dict[str, Any]:
     """
-    NOTEBOOK INTEGRATION POINT: swap in the notebook's stack-selection logic here.
+    Selects technology stack with layer-by-layer recommendations.
     Returns {"technology": [...], "architecture": {"layers": [...], "dataFlow": [...]}}.
     """
     base = kb.offline_technology(inp)

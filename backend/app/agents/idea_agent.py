@@ -13,7 +13,8 @@ _REQUIRED = {"scores", "difficulty", "estimatedDuration", "verdict", "recommenda
 
 def run(inp: dict[str, Any], llm: LLM) -> dict[str, Any]:
     """
-    NOTEBOOK INTEGRATION POINT: swap in the notebook's evaluation prompt/logic here.
+    Evaluates project idea feasibility, innovation, and academic fit.
+    Returns structured scores and recommendations for the project.
     """
     base = kb.offline_evaluation(inp)
     try:
