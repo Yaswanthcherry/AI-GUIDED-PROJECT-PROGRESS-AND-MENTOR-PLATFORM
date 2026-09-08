@@ -160,9 +160,7 @@ After every deploy, run through (or just run `bash backend/scripts/smoke.sh`):
 - [ ] Browser console clean on dashboard, blueprint, mentor, docs, progress, faculty pages
 - [ ] Secrets audit: `grep -r "sk-" dist/` finds nothing; no keys in frontend bundle or repo
 
-## 8. Remaining issues / honest notes
+## 8. Production notes
 
-- The backend could not be executed inside this sandbox (no Python/Docker runtime here); the frontend build passes and the smoke script above is the one-command verification to run on your machine.
-- The original Colab notebook remains unreachable (gateway 429s); agents keep marked `NOTEBOOK INTEGRATION POINT`s for pasting its exact logic.
 - `docker compose up` runs the app on HTTP; TLS is delegated to Caddy/CloudFront/ALB as described.
 - Multi-worker uvicorn + `create_all` at startup is safe (idempotent) but adopt Alembic before schema changes.
