@@ -1,11 +1,12 @@
 # =====================================================================
 # AI-Guided Project Progress Tracking Platform — frontend
-# Build context MUST be the repository root (needs package.json + src/):
-#   docker build -f frontend/Dockerfile -t aapm-frontend .
+# Build context is ./frontend (directory containing package.json + src/):
+#   docker compose build frontend
+#   or: docker build -f frontend/Dockerfile -t aapm-frontend ./frontend
 #
 # VITE_API_BASE_URL is baked at build time:
-#   /api (default)            -> same-origin; nginx proxies to the backend (no hardcoded host)
-#   https://api.example.com   -> call a separately hosted backend directly (CORS applies)
+#   /api (default)            -> same-origin; nginx proxies to the backend
+#   https://api.example.com   -> call separately hosted backend (CORS applies)
 # =====================================================================
 FROM node:20-alpine AS build
 
@@ -22,7 +23,7 @@ RUN npm run build
 # ---------------- runtime ----------------
 FROM nginx:1.27-alpine
 
-COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 
 EXPOSE 80
