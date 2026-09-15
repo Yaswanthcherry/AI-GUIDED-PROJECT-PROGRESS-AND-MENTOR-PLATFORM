@@ -1,13 +1,3 @@
-# =====================================================================
-# AI-Guided Project Progress Tracking Platform — local development stack
-#
-#   cp .env.example .env     # then set a strong JWT_SECRET_KEY / DB password
-#   docker compose up --build
-#
-# Frontend:  http://localhost:8080   (nginx proxies /api -> backend)
-# Backend:   http://localhost:8000   (Swagger at /docs, health at /health)
-# Postgres:  localhost:5432
-# =====================================================================
 name: aapm
 
 services:
@@ -21,7 +11,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432" # remove this mapping in production; backend reaches db internally
+      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aapm} -d ${POSTGRES_DB:-aapm}"]
       interval: 5s
@@ -35,16 +25,18 @@ services:
     env_file:
       - .env
     environment:
-      # Override host/port for the compose network (db service name)
       DATABASE_URL: postgresql://${POSTGRES_USER:-aapm}:${POSTGRES_PASSWORD:-aapm}@db:5432/${POSTGRES_DB:-aapm}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080,http://localhost:5173,http://localhost:3000}
       DEMO_MODE: ${DEMO_MODE:-true}
-      LLM_PROVIDER: ${LLM_PROVIDER:-auto}
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-http://freellmapi:3001/v1}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-auto}
     depends_on:
       db:
         condition: service_healthy
     ports:
-      - "8000:8000"
+      - "8001:8000"
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/health"]
       interval: 10s
@@ -57,7 +49,6 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        # Same-origin proxy — no hardcoded host baked into the JS bundle
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
     restart: unless-stopped
     depends_on:
@@ -66,5 +57,17 @@ services:
     ports:
       - "8080:80"
 
+  freellmapi:
+    image: ghcr.io/tashfeenahmed/freellmapi:latest
+    container_name: freellmapi
+    restart: unless-stopped
+    environment:
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+    ports:
+      - "3001:3001"
+    volumes:
+      - freellmapi_data:/app/data
+
 volumes:
   pgdata:
+  freellmapi_data:
