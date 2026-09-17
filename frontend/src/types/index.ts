@@ -185,3 +185,18 @@ export interface ProgressSummary {
   tasks: { id: string; status: TaskStatus }[];
   recommendations: string[];
 }
+
+/* ---------------- Faculty feedback / guidance ---------------- */
+
+export type FeedbackType = "message" | "feedback" | "recommendation" | "task_suggestion";
+
+export interface FacultyFeedback {
+  id: string;
+  projectId: string;
+  facultyId: string;
+  facultyName: string;
+  type: FeedbackType;
+  content: string;
+  relatedTaskId?: string;
+  createdAt: string;
+}

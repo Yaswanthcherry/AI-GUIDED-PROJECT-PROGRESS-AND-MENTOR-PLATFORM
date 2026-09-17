@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useProjects } from "../../context/StoreContext";
-import { api } from "../../services/api";
+import { api, type FacultyFeedback } from "../../services/api";
 import { milestoneProgress } from "../../services/generators";
-import { Badge, Button, Card, EmptyState, PageHead, PhaseStepper, ProgressBar, RiskBadge, Ring, Skeleton, StatusBadge, TaskBadge } from "../../components/ui";
+import { Badge, Button, Card, EmptyState, PageHead, PhaseStepper, ProgressBar, RiskBadge, Ring, Skeleton, StatusBadge, TaskBadge, Textarea } from "../../components/ui";
 import { Icon } from "../../components/Icon";
 import { WeeklyLoadChart } from "../../components/charts";
 import { fmtDateFull, timeAgo } from "../../utils";
 import { usePageTitle } from "../../hooks";
+import type { FeedbackType } from "../../types";
 
 export default function FacultyProject() {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +20,11 @@ export default function FacultyProject() {
 
   const [insights, setInsights] = useState<string[] | null>(null);
   const [insightsLoading, setInsightsLoading] = useState(false);
+  const [feedback, setFeedback] = useState<FacultyFeedback[]>([]);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [feedbackType, setFeedbackType] = useState<FeedbackType>("message");
+  const [feedbackContent, setFeedbackContent] = useState("");
+  const [sendingFeedback, setSendingFeedback] = useState(false);
 
   const loadInsights = (pid: string) => {
     setInsightsLoading(true);
@@ -29,8 +35,35 @@ export default function FacultyProject() {
       .finally(() => setInsightsLoading(false));
   };
 
+  const loadFeedback = (pid: string) => {
+    setFeedbackLoading(true);
+    api.faculty
+      .listFeedback(pid)
+      .then(setFeedback)
+      .catch(() => setFeedback([]))
+      .finally(() => setFeedbackLoading(false));
+  };
+
+  const sendFeedback = async () => {
+    if (!project || !feedbackContent.trim()) return;
+    setSendingFeedback(true);
+    try {
+      const newFeedback = await api.faculty.sendFeedback(project.id, {
+        type: feedbackType,
+        content: feedbackContent.trim(),
+      });
+      setFeedback([newFeedback, ...feedback]);
+      setFeedbackContent("");
+    } catch (e) {
+      console.error("Failed to send feedback:", e);
+    } finally {
+      setSendingFeedback(false);
+    }
+  };
+
   useEffect(() => {
     if (project && insights === null) loadInsights(project.id);
+    if (project && feedback.length === 0) loadFeedback(project.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project?.id]);
 
@@ -73,7 +106,7 @@ export default function FacultyProject() {
         actions={
           <>
             <Badge tone="paper" dot={false}>created {fmtDateFull(p.createdAt)}</Badge>
-            <Button variant="outline" icon="refresh" onClick={() => loadInsights(p.id)} loading={insightsLoading}>Regenerate insights</Button>
+            <Button variant="outline" icon="refresh" onClick={() => { loadInsights(p.id); loadFeedback(p.id); }} loading={insightsLoading}>Refresh</Button>
           </>
         }
       />
@@ -211,6 +244,88 @@ export default function FacultyProject() {
                 </li>
               ))}
             </ol>
+          </Card>
+
+          {/* Faculty Guidance Panel */}
+          <Card className="p-5">
+            <h3 className="font-display mb-3 text-base font-bold text-ink-900 flex items-center gap-2">
+              <Icon name="messageCircle" size={16} /> Faculty Guidance
+            </h3>
+            
+            {/* Feedback Type Selector */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              {[
+                { value: "message", label: "Message", icon: "messageCircle" },
+                { value: "feedback", label: "Feedback", icon: "star" },
+                { value: "recommendation", label: "Recommendation", icon: "lightbulb" },
+                { value: "task_suggestion", label: "Task", icon: "checkSquare" },
+              ].map((type) => (
+                <button
+                  key={type.value}
+                  onClick={() => setFeedbackType(type.value as FeedbackType)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                    feedbackType === type.value
+                      ? "bg-pine-600 text-white"
+                      : "bg-paper-100 text-ink-600 hover:bg-paper-200"
+                  }`}
+                >
+                  <Icon name={type.icon as any} size={12} />
+                  {type.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Feedback Input */}
+            <Textarea
+              value={feedbackContent}
+              onChange={(e) => setFeedbackContent(e.target.value)}
+              placeholder={
+                feedbackType === "task_suggestion"
+                  ? "Suggest a new task for the student..."
+                  : feedbackType === "recommendation"
+                  ? "Provide a recommendation for the project..."
+                  : "Send a message or feedback to the student..."
+              }
+              className="min-h-[80px] mb-3 text-sm"
+            />
+            <Button
+              onClick={sendFeedback}
+              loading={sendingFeedback}
+              disabled={!feedbackContent.trim()}
+              className="w-full"
+              icon="send"
+            >
+              Send {feedbackType.replace("_", " ")}
+            </Button>
+
+            {/* Feedback History */}
+            {feedback.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-ink-100">
+                <p className="font-mono text-[9.5px] tracking-wider text-ink-400 uppercase mb-2">Recent guidance</p>
+                <ul className="space-y-3 max-h-[200px] overflow-y-auto">
+                  {feedback.slice(0, 5).map((f) => (
+                    <li key={f.id} className="text-xs">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <Badge 
+                          tone={
+                            f.type === "task_suggestion" ? "gold" :
+                            f.type === "recommendation" ? "pine" :
+                            f.type === "feedback" ? "clay" : "ink"
+                          }
+                          dot={false}
+                          className="text-[9px] px-1.5 py-0.5"
+                        >
+                          {f.type.replace("_", " ")}
+                        </Badge>
+                        <span className="text-ink-400">{f.facultyName}</span>
+                        <span className="ml-auto font-mono text-[9px] text-ink-300">{timeAgo(f.createdAt)}</span>
+                      </div>
+                      <p className="text-ink-700 leading-relaxed">{f.content}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </Card>
 
           <button

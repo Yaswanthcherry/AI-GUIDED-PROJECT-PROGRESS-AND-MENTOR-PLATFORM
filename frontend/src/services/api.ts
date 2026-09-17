@@ -98,6 +98,7 @@ const K = {
   users: "aapm.users.v1",
   chat: (pid: string) => `aapm.chat.v1.${pid}`,
   docs: (pid: string) => `aapm.docs.v1.${pid}`,
+  feedback: (pid: string) => `aapm.feedback.v1.${pid}`,
 };
 
 function read<T>(key: string): T | null {
@@ -754,4 +755,81 @@ export const api = {
       return p ? composeInsights(p) : [];
     },
   },
+
+  faculty: {
+    /** GET /api/faculty/:projectId/feedback */
+    async listFeedback(
+      projectId: string,
+    ): Promise<FacultyFeedback[]> {
+      if (!MOCK_MODE) {
+        return http<{ feedback: FacultyFeedback[] }>(
+          `/faculty/${projectId}/feedback`,
+        ).then((r) => r.feedback);
+      }
+
+      await delay(jitter(300));
+
+      const stored = read<FacultyFeedback[]>(
+        K.feedback(projectId),
+      );
+
+      return stored ?? [];
+    },
+
+    /** POST /api/faculty/:projectId/feedback */
+    async sendFeedback(
+      projectId: string,
+      feedback: FacultyFeedbackInput,
+    ): Promise<FacultyFeedback> {
+      if (!MOCK_MODE) {
+        return http<FacultyFeedback>(
+          `/faculty/${projectId}/feedback`,
+          {
+            method: "POST",
+            body: JSON.stringify(feedback),
+          },
+        );
+      }
+
+      await delay(jitter(400));
+
+      const f: FacultyFeedback = {
+        id: uid(),
+        projectId,
+        facultyId: "faculty-1",
+        facultyName: "Demo Faculty",
+        type: feedback.type,
+        content: feedback.content,
+        relatedTaskId: feedback.relatedTaskId,
+        createdAt: new Date().toISOString(),
+      };
+
+      const stored = (
+        read<FacultyFeedback[]>(
+          K.feedback(projectId),
+        ) ?? []
+      ).concat(f);
+
+      write(K.feedback(projectId), stored);
+
+      return f;
+    },
+  },
 };
+
+export interface FacultyFeedbackInput {
+  type: "message" | "feedback" | "recommendation" | "task_suggestion";
+  content: string;
+  relatedTaskId?: string;
+}
+
+export interface FacultyFeedback {
+  id: string;
+  projectId: string;
+  facultyId: string;
+  facultyName: string;
+  type: string;
+  content: string;
+  relatedTaskId?: string;
+  createdAt: string;
+}

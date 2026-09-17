@@ -6,7 +6,7 @@ export type IconName =
   | "grid" | "folder" | "users" | "compass" | "target" | "cpu" | "layers"
   | "calendar" | "clock" | "chart" | "gauge" | "chat" | "file" | "book" | "search"
   | "flag" | "play" | "refresh" | "send" | "copy" | "download" | "eye" | "logout"
-  | "cap" | "edit" | "shield";
+  | "cap" | "edit" | "shield" | "messageCircle" | "star" | "lightbulb" | "checkSquare";
 
 const PATHS: Record<IconName, ReactNode> = {
   spark: <path d="M12 2.5l2.3 7.2 7.2 2.3-7.2 2.3L12 21.5l-2.3-7.2-7.2-2.3 7.2-2.3z" />,
@@ -173,6 +173,14 @@ const PATHS: Record<IconName, ReactNode> = {
       <path d="M8.8 11.8l2.2 2.2 4.2-4.8" />
     </>
   ),
+  messageCircle: <path d="M21 11.6a8.4 8.4 0 0 1-8.5 8.3c-1.3 0-2.5-.3-3.6-.8L3 20.9l1.9-5.6A8.3 8.3 0 1 1 21 11.6z" />,
+  star: <path d="M12 2l3 7 7 3-7 3-3-7-7-3 7-3z" />,
+  lightbulb: (
+    <>
+      <path d="M9 18h6M10 22h4M12 2a6 6 0 0 1 6 6c0 2.5-1.2 4.7-3 5.8V17a3 3 0 0 1-6 0v-3.2C7 12.7 5.8 10.5 5.8 8a6 6 0 0 1 6-6z" />
+    </>
+  ),
+  checkSquare: <path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />,
 };
 
 export function Icon({ name, size = 16, className, strokeWidth = 1.8 }: { name: IconName; size?: number; className?: string; strokeWidth?: number }) {
