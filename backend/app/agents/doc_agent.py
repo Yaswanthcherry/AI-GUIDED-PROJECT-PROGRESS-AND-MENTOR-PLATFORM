@@ -1,5 +1,4 @@
-```python
-"""Doc Drafter — composes the 11 standard academic documents from live project data."""
+
 from __future__ import annotations
 
 import json
